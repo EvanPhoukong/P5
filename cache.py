@@ -1,10 +1,41 @@
 """
+This module simulates the behavior of a direct-mapped cache or n-way set associative cache for a sequence
+of memory access of 4-byte words, using 32-bit addresses.
 """
 
 import argparse, sys, math, os
 from pathlib import Path
 
-def input_error_handling(args):
+
+class Cache:
+
+    def __init__(self):
+        pass
+
+
+class Block:
+    "Block can contain tag bits, {00: [] 01 10 11}"
+
+    def __init__(self):
+        self.tag = None
+        pass
+
+    def set_tag(self, tag):
+        """
+        Set the tag value
+        """
+        self.tag = tag
+
+
+    def get_tag(self):
+        """
+        Get the tag value
+        """
+        return self.tag
+
+
+
+def input_error_handling(args: dict) -> None:
     """
     The functions handles any errors with the module/teriminal arguments.
     """
@@ -47,12 +78,6 @@ if __name__ == "__main__":
 
     args = vars(parser.parse_args())
 
+    format(int(a, 16), 'b')
+
     input_error_handling(args)
-
-    print(args.items())
-
-    # processor = Processor()
-
-    # store_addrs(args['program'])
-
-    # store_memory(args['memory'])
