@@ -9,14 +9,20 @@ from pathlib import Path
 
 class Cache:
 
-    def __init__(self):
-        pass
+    def __init__(self, blocks):
+        self.blocks = {block: None for block in range(1, blocks + 1)}
+
+    def get_blocks(self):
+        return self.blocks
 
 
 class Block:
-    "Block can contain tag bits, {00: [] 01 10 11}"
+    "A block in the cache. Only the tag bit is tored"
 
     def __init__(self):
+        """
+        Initialize class and tag member variable
+        """
         self.tag = None
         pass
 
@@ -66,6 +72,40 @@ def input_error_handling(args: dict) -> None:
         sys.exit()
 
 
+def parse_addr(addr):
+
+    byte = 30
+    word = int(byte - math.log(args['block_size'], 2))
+    block = int(word - math.log(args['cache_size'] // args['block_size'], 2))
+    
+    print(byte, word, block)
+
+    tag = addr[0 : block]
+    index = addr[block : word]
+    # word = addr[word: byte]
+    # byte = addr[byte : 33]
+
+    return tag, index
+
+
+def parse_memory(args):
+
+    with open(args['memfile'], 'r') as ifile, open('cache.txt', 'a+', newline ='') as ofile:
+        for addr in ifile:
+            addr = addr.strip()
+            baddr = format(int(addr, 16), '032b')
+            parse_addr(baddr)
+            print(addr, baddr)
+
+
+def main(args):
+    
+    cache = Cache(args['cache_size'] // args['block_size'])
+    print(cache.get_blocks())
+
+    parse_memory(args)
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -78,6 +118,8 @@ if __name__ == "__main__":
 
     args = vars(parser.parse_args())
 
-    format(int(a, 16), 'b')
-
     input_error_handling(args)
+
+    main(args)
+
+    #format(int(a, 16), 'b')
