@@ -10,10 +10,13 @@ from pathlib import Path
 class Cache:
 
     def __init__(self, blocks):
-        self.blocks = {block: None for block in range(1, blocks + 1)}
+        self.blocks = {format(block, '02b'): None for block in range(blocks)}
 
-    def get_blocks(self):
-        return self.blocks
+    def get_block(self, index):
+        return self.blocks[index]
+    
+    def set_block(self, index, tag):
+        self.blocks[index] = tag
 
 
 class Block:
@@ -74,11 +77,10 @@ def input_error_handling(args: dict) -> None:
 
 def parse_addr(addr):
 
-    byte = 30
-    word = int(byte - math.log(args['block_size'], 2))
+    #byte = 30
+    word = int(32 - math.log(args['block_size'], 2))
     block = int(word - math.log(args['cache_size'] // args['block_size'], 2))
-    
-    print(byte, word, block)
+    print(word, block)
 
     tag = addr[0 : block]
     index = addr[block : word]
@@ -88,22 +90,27 @@ def parse_addr(addr):
     return tag, index
 
 
-def parse_memory(args):
+def simulate_direct_cache(args, cache):
 
     with open(args['memfile'], 'r') as ifile, open('cache.txt', 'a+', newline ='') as ofile:
         for addr in ifile:
             addr = addr.strip()
             baddr = format(int(addr, 16), '032b')
-            parse_addr(baddr)
-            print(addr, baddr)
+            tag, index = parse_addr(baddr)
+            stored = cache.get_block(index)
+            if stored == tag:
+                ofile.write(f'{addr}|{tag}|{index}|HIT\n')
+            else:
+                cache.set_block(index, tag)
+                ofile.write(f'{addr}|{tag}|{index}|MISS\n')
 
 
 def main(args):
     
     cache = Cache(args['cache_size'] // args['block_size'])
-    print(cache.get_blocks())
-
-    parse_memory(args)
+    
+    if args['type'] == 'd':
+        simulate_direct_cache(args, cache)
 
 
 if __name__ == "__main__":
