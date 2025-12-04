@@ -92,6 +92,9 @@ def parse_addr(addr):
 
 def simulate_direct_cache(args, cache):
 
+    hit = 0
+    miss = 0
+
     with open(args['memfile'], 'r') as ifile, open('cache.txt', 'a+', newline ='') as ofile:
         for addr in ifile:
             addr = addr.strip()
@@ -99,16 +102,21 @@ def simulate_direct_cache(args, cache):
             tag, index = parse_addr(baddr)
             stored = cache.get_block(index)
             if stored == tag:
+                hit += 1
                 ofile.write(f'{addr}|{tag}|{index}|HIT\n')
             else:
+                miss += 1
                 cache.set_block(index, tag)
                 ofile.write(f'{addr}|{tag}|{index}|MISS\n')
+
+        hit_rate = 100 * hit/(hit + miss)
+        ofile.write(f'\nhit rate:{hit_rate : .1f}')
 
 
 def main(args):
     
     cache = Cache(args['cache_size'] // args['block_size'])
-    
+
     if args['type'] == 'd':
         simulate_direct_cache(args, cache)
 
